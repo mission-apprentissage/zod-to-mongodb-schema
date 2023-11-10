@@ -28,6 +28,14 @@
     "build": "tsup-node --env.NODE_ENV production",
     "typecheck": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "mongodb": "^6.2.0",
+    "zod": "^3.22.4"
+  },
+  "dependencies": {
+    "json-schema": "^0.4.0",
+    "zod-to-json-schema": "^3.21.4"
+  },
   "devDependencies": {
     "@commitlint/cli": "^18.4.0",
     "@commitlint/config-conventional": "^18.4.0",
@@ -42,12 +50,14 @@
     "eslint-plugin-zod": "^1.4.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
+    "mongodb": "^6.2.0",
     "prettier": "^3.0.3",
     "semantic-release": "^22.0.7",
     "semantic-release-slack-bot": "^4.0.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "zod": "^3.22.4"
   },
   "lint-staged": {
     "*.{js,ts}": [
