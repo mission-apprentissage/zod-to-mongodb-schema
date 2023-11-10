@@ -1,0 +1,10 @@
+{
+  "branches": ["main", { "name": "next", "channel": "rc", "prerelease": true }],
+  "repositoryUrl": "https://github.com/mission-apprentissage/zod-to-mongodb-schema.git",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    "@semantic-release/github"
+  ]
+}

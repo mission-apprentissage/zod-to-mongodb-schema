@@ -1,0 +1,66 @@
+{
+  "name": "zod-to-mongodb-schema",
+  "version": "0.0.0",
+  "description": "Converts Zod object to MongoDB validation schema",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mission-apprentissage/zod-to-mongodb-schema.git"
+  },
+  "author": "Moroine <moroine.bentefrit@beta.gouv.fr>",
+  "license": "MIT",
+  "packageManager": "yarn@4.0.1",
+  "engines": {
+    "node": ">=20",
+    "npm": "please-use-yarn"
+  },
+  "scripts": {
+    "lint": "eslint --ignore-path .gitignore --cache --ext .js,.ts,.cjs .",
+    "lint:fix": "yarn lint --fix",
+    "prettier:fix": "prettier --write -u .",
+    "prettier:check": "prettier --check -u .",
+    "release": "semantic-release",
+    "postinstall": "husky install",
+    "test": "vitest",
+    "test:ci": "yarn test --run",
+    "build": "tsup-node --env.NODE_ENV production",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.0",
+    "@commitlint/config-conventional": "^18.4.0",
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.1.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "eslint": "^8.53.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.3.1",
+    "eslint-plugin-zod": "^1.4.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2",
+    "prettier": "^3.0.3",
+    "semantic-release": "^22.0.7",
+    "semantic-release-slack-bot": "^4.0.2",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --ignore-path .gitignore --cache --fix",
+      "prettier --write -u"
+    ],
+    "*": [
+      "prettier --write -u"
+    ]
+  },
+  "files": [
+    "src/**/*",
+    "!src/**/*.test.ts",
+    "dist/**/*"
+  ]
+}

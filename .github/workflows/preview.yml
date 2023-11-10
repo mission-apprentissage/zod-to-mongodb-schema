@@ -1,0 +1,9 @@
+name: PR CI and Preview
+on:
+  pull_request:
+
+jobs:
+  tests:
+    uses: "./.github/workflows/ci.yml"
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

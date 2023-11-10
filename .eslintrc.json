@@ -1,0 +1,38 @@
+{
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:@eslint-community/eslint-comments/recommended",
+    "plugin:n/recommended-module"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "import", "zod"],
+  "rules": {
+    "zod/prefer-enum": 2,
+    "zod/require-strict": 2
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": "tsconfig.json"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.cjs"],
+      "parserOptions": {
+        "sourceType": "script"
+      }
+    }
+  ]
+}
