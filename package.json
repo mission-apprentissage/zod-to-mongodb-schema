@@ -11,20 +11,20 @@
   },
   "author": "Moroine <moroine.bentefrit@beta.gouv.fr>",
   "license": "MIT",
-  "packageManager": "yarn@4.0.1",
   "engines": {
     "node": ">=20",
-    "npm": "please-use-yarn"
+    "npm": ">=10.0.0",
+    "yarn": "please-use-npm"
   },
   "scripts": {
     "lint": "eslint --ignore-path .gitignore --cache --ext .js,.ts,.cjs .",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "npm run lint -- --fix",
     "prettier:fix": "prettier --write -u .",
     "prettier:check": "prettier --check -u .",
     "release": "semantic-release",
-    "postinstall": "husky install",
+    "prepare": "husky install",
     "test": "vitest",
-    "test:ci": "yarn test --run",
+    "test:ci": "npm run -- test --run",
     "build": "tsup-node --env.NODE_ENV production",
     "typecheck": "tsc --noEmit"
   },

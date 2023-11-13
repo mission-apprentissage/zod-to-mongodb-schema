@@ -18,33 +18,22 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            **/node_modules
-            .yarn/install-state.gz
-            .yarn/cache
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: yarn-
+          cache: "npm"
 
       - name: Install dependencies
-        run: yarn install
-
-      - name: Make sure to use same dependencies version across all packages
-        run: yarn dedupe --check
+        run: npm ci
 
       - name: lint
-        run: yarn lint
+        run: npm run lint
 
       - name: typecheck
-        run: yarn typecheck
+        run: npm run typecheck
 
       - name: test
-        run: yarn test:ci
+        run: npm run test:ci
 
       - name: prettier
-        run: yarn prettier:check
+        run: npm run prettier:check
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
