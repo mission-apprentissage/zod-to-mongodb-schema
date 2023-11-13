@@ -8423,9 +8423,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-to-mongodb-schema@workspace:.":
+"zod-mongodb-schema@workspace:.":
   version: 0.0.0-use.local
-  resolution: "zod-to-mongodb-schema@workspace:."
+  resolution: "zod-mongodb-schema@workspace:."
   dependencies:
     "@commitlint/cli": "npm:^18.4.0"
     "@commitlint/config-conventional": "npm:^18.4.0"

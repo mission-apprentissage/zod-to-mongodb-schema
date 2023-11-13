@@ -1,5 +1,5 @@
 {
-  "name": "zod-to-mongodb-schema",
+  "name": "zod-mongodb-schema",
   "version": "0.0.0",
   "description": "Converts Zod object to MongoDB validation schema",
   "main": "dist/index.js",
