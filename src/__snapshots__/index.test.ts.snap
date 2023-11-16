@@ -1,0 +1,64 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`zodToMongoSchema > should convert zod object properly 1`] = `
+{
+  "additionalProperties": false,
+  "bsonType": "object",
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+    },
+    "enum": {
+      "bsonType": "string",
+      "enum": [
+        "a",
+        "b",
+      ],
+    },
+    "nullishNumber": {
+      "bsonType": [
+        "number",
+        "null",
+      ],
+    },
+    "number": {
+      "bsonType": "number",
+    },
+    "optionalString": {
+      "bsonType": "string",
+    },
+    "string": {
+      "bsonType": "string",
+    },
+  },
+  "required": [
+    "_id",
+    "string",
+    "number",
+    "enum",
+  ],
+}
+`;
+
+exports[`zodToMongoSchema > should resolves zod ref properly 1`] = `
+{
+  "additionalProperties": false,
+  "bsonType": "object",
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+    },
+    "a": {
+      "bsonType": "string",
+    },
+    "b": {
+      "bsonType": "string",
+    },
+  },
+  "required": [
+    "_id",
+    "a",
+    "b",
+  ],
+}
+`;
