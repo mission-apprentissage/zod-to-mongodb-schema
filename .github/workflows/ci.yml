@@ -21,8 +21,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        # Cannot use npm install due to arch incompatibility https://github.com/npm/cli/issues/4828
-        run: npm install
+        run: npm ci
 
       - name: lint
         run: npm run lint
