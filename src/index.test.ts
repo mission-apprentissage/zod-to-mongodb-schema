@@ -197,4 +197,30 @@ describe("zodToMongoSchema", () => {
       ),
     ).toMatchSnapshot();
   });
+
+  it("should convert zod string regex with escape properly", () => {
+    expect(
+      zodToMongoSchema(
+        z
+          .object({
+            _id: zObjectId,
+            a: z.string().regex(/^\d+$/),
+          })
+          .strict(),
+      ),
+    ).toEqual({
+      additionalProperties: false,
+      bsonType: "object",
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        a: {
+          bsonType: "string",
+          pattern: "^\\d+$",
+        },
+      },
+      required: ["_id", "a"],
+    });
+  });
 });
