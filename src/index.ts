@@ -4,7 +4,7 @@ import {
   JSONSchema7Type,
   JSONSchema7TypeName,
 } from "json-schema";
-import { ObjectId } from "mongodb";
+import { ObjectId } from "bson";
 import { ZodType, z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
