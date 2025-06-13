@@ -1,11 +1,12 @@
 import { defineConfig } from "tsup";
+import type { Options } from "tsup";
 
-export default defineConfig((options) => {
+export default defineConfig((options: Options): Options => {
   return {
     entry: {
       index: "src/index.ts",
     },
-    watch: options.watch,
+    watch: options.watch as boolean,
     target: "es2022",
     platform: "node",
     format: ["esm"],
