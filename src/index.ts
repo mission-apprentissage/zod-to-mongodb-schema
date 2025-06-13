@@ -1,11 +1,12 @@
-import {
+import type {
   JSONSchema7,
   JSONSchema7Definition,
   JSONSchema7Type,
   JSONSchema7TypeName,
 } from "json-schema";
 import { ObjectId } from "bson";
-import { ZodType, z } from "zod";
+import type { ZodType } from "zod";
+import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 type MongoType = "object" | "array" | "number" | "boolean" | "string" | "null";

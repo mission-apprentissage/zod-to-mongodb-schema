@@ -1,12 +1,11 @@
-import { JSONSchema7 } from "json-schema";
+import type { JSONSchema7 } from "json-schema";
 import { describe, expect, it } from "vitest";
-
+import { z } from "zod";
 import {
   jsonSchemaToMongoSchema,
   zodToMongoSchema,
   zObjectId,
 } from "./index.ts";
-import { z } from "zod";
 
 describe("jsonSchemaToMongoSchema", () => {
   it("should convert complex schema", () => {
