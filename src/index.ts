@@ -1,13 +1,6 @@
-import type {
-  JSONSchema7,
-  JSONSchema7Definition,
-  JSONSchema7Type,
-  JSONSchema7TypeName,
-} from "json-schema";
 import { ObjectId } from "bson";
-import type { ZodType } from "zod";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import type { $ZodType, JSONSchema } from "zod/v4/core";
+import { custom, pipe, transform, toJSONSchema, registry } from "zod/v4-mini";
 
 type MongoType = "object" | "array" | "number" | "boolean" | "string" | "null";
 type MongoBsonType =
@@ -42,7 +35,14 @@ export interface MongoSchema {
     [k: string]: string[] | MongoSchema;
   };
   description?: string;
-  enum?: JSONSchema7Type[];
+  enum?: Array<
+    | string
+    | number
+    | boolean
+    | JSONSchema.ObjectSchema
+    | JSONSchema.ArraySchema
+    | null
+  >;
   exclusiveMaximum?: boolean;
   exclusiveMinimum?: boolean;
   items?: MongoSchema | MongoSchema[];
@@ -71,8 +71,8 @@ export interface MongoSchema {
 }
 
 function convertJSONSchema7Definition(
-  root: JSONSchema7,
-  input: JSONSchema7Definition,
+  root: JSONSchema.Schema,
+  input: JSONSchema._JSONSchema,
 ): MongoSchema | boolean {
   if (typeof input === "boolean") {
     return input;
@@ -82,8 +82,8 @@ function convertJSONSchema7Definition(
 }
 
 function convertJSONSchema7DefinitionNoBoolean(
-  root: JSONSchema7,
-  input: JSONSchema7Definition,
+  root: JSONSchema.Schema,
+  input: JSONSchema._JSONSchema,
 ): MongoSchema {
   if (typeof input === "boolean") {
     throw new Error("Boolean not supported");
@@ -92,7 +92,16 @@ function convertJSONSchema7DefinitionNoBoolean(
   return jsonSchemaToMongoSchema(root, input);
 }
 
-function convertTypeToBsonType(type: JSONSchema7TypeName): MongoBsonType {
+function convertTypeToBsonType(
+  type:
+    | "string"
+    | "number"
+    | "integer"
+    | "boolean"
+    | "object"
+    | "array"
+    | "null",
+): MongoBsonType {
   switch (type) {
     case "string":
       return "string";
@@ -111,18 +120,18 @@ function convertTypeToBsonType(type: JSONSchema7TypeName): MongoBsonType {
   }
 }
 
-export const zObjectId = z
-  .custom<ObjectId | string>((v) => {
+export const zObjectId = pipe(
+  custom<ObjectId | string>((v) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ObjectId.isValid(v as any);
-  })
-  .transform((v) => new ObjectId(v))
-  .describe("Identifiant unique");
+  }),
+  transform((v) => new ObjectId(v)),
+);
 
-function resolveRef(root: JSONSchema7, ref: string) {
+function resolveRef(root: JSONSchema.Schema, ref: string) {
   const result: MongoSchema = {};
 
-  if (ref === "#/definitions/objectId") {
+  if (ref === "objectId") {
     result.bsonType = "objectId";
     return result;
   }
@@ -131,8 +140,7 @@ function resolveRef(root: JSONSchema7, ref: string) {
     if (!(part in acc)) {
       throw new Error(`Cannot resolve reference ${ref}`);
     }
-    // @ts-expect-error parts are not properly typed
-    return acc[part] as JSONSchema7;
+    return acc[part] as JSONSchema.Schema;
   }, root);
 
   return jsonSchemaToMongoSchema(root, schema);
@@ -142,8 +150,8 @@ function resolveRef(root: JSONSchema7, ref: string) {
  * Conversion du schema pour le format mongoDB
  */
 export const jsonSchemaToMongoSchema = (
-  root: JSONSchema7,
-  schema: JSONSchema7,
+  root: JSONSchema.Schema,
+  schema: JSONSchema.Schema,
 ): MongoSchema => {
   let result: MongoSchema = {};
 
@@ -176,18 +184,6 @@ export const jsonSchemaToMongoSchema = (
   if (schema.anyOf) {
     result.anyOf = schema.anyOf.map((s) =>
       convertJSONSchema7DefinitionNoBoolean(root, s),
-    );
-  }
-
-  if (schema.dependencies) {
-    result.dependencies = Object.entries(schema.dependencies).reduce(
-      (acc: NonNullable<MongoSchema["dependencies"]>, [k, v]) => {
-        acc[k] = Array.isArray(v)
-          ? v
-          : convertJSONSchema7DefinitionNoBoolean(root, v);
-        return acc;
-      },
-      {},
     );
   }
 
@@ -261,12 +257,18 @@ export const jsonSchemaToMongoSchema = (
   return result;
 };
 
-export function zodToMongoSchema(input: ZodType): MongoSchema {
-  const jsonSchema = zodToJsonSchema(input, {
-    definitions: {
-      objectId: zObjectId,
-    },
-  }) as JSONSchema7;
+export function zodToMongoSchema(input: $ZodType): MongoSchema {
+  const metadata = registry<{ id: string; description?: string }>();
+  metadata.add(zObjectId, {
+    id: "objectId",
+    description: "Identifiant unique",
+  });
+  metadata.add(input, { id: "root" });
 
-  return jsonSchemaToMongoSchema(jsonSchema, jsonSchema);
+  const { schemas: jsonSchemas } = toJSONSchema(metadata, {
+    target: "draft-7",
+    unrepresentable: "any",
+  });
+
+  return jsonSchemaToMongoSchema(jsonSchemas["root"]!, jsonSchemas["root"]!);
 }

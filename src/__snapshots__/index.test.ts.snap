@@ -16,9 +16,13 @@ exports[`zodToMongoSchema > should convert zod object properly 1`] = `
       ],
     },
     "nullishNumber": {
-      "bsonType": [
-        "number",
-        "null",
+      "anyOf": [
+        {
+          "bsonType": "number",
+        },
+        {
+          "bsonType": "null",
+        },
       ],
     },
     "number": {
@@ -50,9 +54,11 @@ exports[`zodToMongoSchema > should resolves zod ref properly 1`] = `
     },
     "a": {
       "bsonType": "string",
+      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
     },
     "b": {
       "bsonType": "string",
+      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
     },
   },
   "required": [
