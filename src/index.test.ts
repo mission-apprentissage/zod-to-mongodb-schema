@@ -1,6 +1,6 @@
-import type { JSONSchema7 } from "json-schema";
 import { describe, expect, it } from "vitest";
-import { z } from "zod";
+import { z } from "zod/v4";
+import type { JSONSchema } from "zod/v4/core";
 import {
   jsonSchemaToMongoSchema,
   zodToMongoSchema,
@@ -9,11 +9,11 @@ import {
 
 describe("jsonSchemaToMongoSchema", () => {
   it("should convert complex schema", () => {
-    const input: JSONSchema7 = {
+    const input: JSONSchema.BaseSchema = {
       type: "object",
       properties: {
         _id: {
-          $ref: "#/definitions/objectId",
+          $ref: "objectId",
         },
         type_document: {
           type: "string",
@@ -182,7 +182,7 @@ describe("zodToMongoSchema", () => {
   });
 
   it("should resolves zod ref properly", () => {
-    const zEmail = z.string().email();
+    const zEmail = z.email();
 
     expect(
       zodToMongoSchema(
