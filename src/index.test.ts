@@ -175,6 +175,7 @@ describe("zodToMongoSchema", () => {
             enum: z.enum(["a", "b"]),
             optionalString: z.string().optional(),
             nullishNumber: z.number().nullish(),
+            date: z.date(),
           })
           .strict(),
       ),

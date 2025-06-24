@@ -8,6 +8,9 @@ exports[`zodToMongoSchema > should convert zod object properly 1`] = `
     "_id": {
       "bsonType": "objectId",
     },
+    "date": {
+      "bsonType": "date",
+    },
     "enum": {
       "bsonType": "string",
       "enum": [
@@ -40,6 +43,7 @@ exports[`zodToMongoSchema > should convert zod object properly 1`] = `
     "string",
     "number",
     "enum",
+    "date",
   ],
 }
 `;

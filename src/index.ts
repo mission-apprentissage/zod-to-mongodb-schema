@@ -268,6 +268,12 @@ export function zodToMongoSchema(input: $ZodType): MongoSchema {
   const { schemas: jsonSchemas } = toJSONSchema(metadata, {
     target: "draft-7",
     unrepresentable: "any",
+    override: (ctx) => {
+      if (ctx.zodSchema._zod.def.type === "date") {
+        ctx.jsonSchema.type = "string";
+        ctx.jsonSchema.format = "date-time";
+      }
+    },
   });
 
   return jsonSchemaToMongoSchema(jsonSchemas["root"]!, jsonSchemas["root"]!);
