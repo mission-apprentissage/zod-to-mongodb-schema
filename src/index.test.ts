@@ -198,6 +198,10 @@ describe("zodToMongoSchema", () => {
     ).toMatchSnapshot();
   });
 
+  it("should simplifies anyOf", () => {
+    expect(zodToMongoSchema(z.string().nullable())).toMatchSnapshot();
+  });
+
   it("should convert zod string regex with escape properly", () => {
     expect(
       zodToMongoSchema(

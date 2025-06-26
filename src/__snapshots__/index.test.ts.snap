@@ -19,13 +19,9 @@ exports[`zodToMongoSchema > should convert zod object properly 1`] = `
       ],
     },
     "nullishNumber": {
-      "anyOf": [
-        {
-          "bsonType": "number",
-        },
-        {
-          "bsonType": "null",
-        },
+      "bsonType": [
+        "number",
+        "null",
       ],
     },
     "number": {
@@ -69,6 +65,15 @@ exports[`zodToMongoSchema > should resolves zod ref properly 1`] = `
     "_id",
     "a",
     "b",
+  ],
+}
+`;
+
+exports[`zodToMongoSchema > should simplifies anyOf 1`] = `
+{
+  "bsonType": [
+    "string",
+    "null",
   ],
 }
 `;
