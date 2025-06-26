@@ -146,6 +146,30 @@ function resolveRef(root: JSONSchema.Schema, ref: string) {
   return jsonSchemaToMongoSchema(root, schema);
 }
 
+function simplifyAnyOf(schema: MongoSchema): MongoSchema {
+  const { anyOf = null } = schema;
+  if (anyOf == null) {
+    return schema;
+  }
+
+  const keys = Object.keys(schema);
+  if (keys.length > 1) {
+    return schema;
+  }
+
+  if (anyOf.length === 1) {
+    return anyOf[0]!;
+  }
+
+  if (anyOf.every((s) => s.bsonType && Object.keys(s).length === 1)) {
+    return {
+      bsonType: Array.from(new Set(anyOf.flatMap((s) => s.bsonType!))),
+    };
+  }
+
+  return schema;
+}
+
 /**
  * Conversion du schema pour le format mongoDB
  */
@@ -254,7 +278,7 @@ export const jsonSchemaToMongoSchema = (
     result = { ...result, ...resolveRef(root, schema.$ref) };
   }
 
-  return result;
+  return simplifyAnyOf(result);
 };
 
 export function zodToMongoSchema(input: $ZodType): MongoSchema {
