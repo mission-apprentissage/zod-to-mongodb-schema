@@ -23,7 +23,6 @@
     "prettier:fix": "prettier --write -u .",
     "prettier:check": "prettier --check -u .",
     "release": "semantic-release",
-    "postinstall": "husky",
     "test": "vitest",
     "test:ci": "npm run -- test --run",
     "build": "tsup-node --env.NODE_ENV production",
