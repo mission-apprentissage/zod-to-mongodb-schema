@@ -281,7 +281,12 @@ export const jsonSchemaToMongoSchema = (
   return simplifyAnyOf(result);
 };
 
-export function zodToMongoSchema(input: $ZodType): MongoSchema {
+type IOverrideFn = (zodSchema: $ZodType) => JSONSchema.Schema | null;
+
+export function zodToMongoSchema(
+  input: $ZodType,
+  overrideFn: IOverrideFn | null = null,
+): MongoSchema {
   const metadata = registry<{ id: string; description?: string }>();
   metadata.add(zObjectId, {
     id: "objectId",
@@ -292,7 +297,19 @@ export function zodToMongoSchema(input: $ZodType): MongoSchema {
   const { schemas: jsonSchemas } = toJSONSchema(metadata, {
     target: "draft-7",
     unrepresentable: "any",
+    io: "output",
     override: (ctx) => {
+      const custom = overrideFn?.(ctx.zodSchema) ?? null;
+
+      if (custom) {
+        // We need to keep the reference of ctx.jsonSchema
+        Object.keys(ctx.jsonSchema).forEach((key) => {
+          delete ctx.jsonSchema[key as keyof JSONSchema.Schema];
+        });
+        Object.assign(ctx.jsonSchema, custom);
+        return;
+      }
+
       if (ctx.zodSchema._zod.def.type === "date") {
         ctx.jsonSchema.type = "string";
         ctx.jsonSchema.format = "date-time";
