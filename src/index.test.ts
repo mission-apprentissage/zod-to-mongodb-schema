@@ -227,4 +227,30 @@ describe("zodToMongoSchema", () => {
       required: ["_id", "a"],
     });
   });
+
+  it("should convert zod string regex with escape properly", () => {
+    expect(
+      zodToMongoSchema(
+        z
+          .object({
+            _id: zObjectId,
+            reason: z.literal("unsubscribe"),
+          })
+          .strict(),
+      ),
+    ).toEqual({
+      additionalProperties: false,
+      bsonType: "object",
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        reason: {
+          bsonType: "string",
+          enum: ["unsubscribe"],
+        },
+      },
+      required: ["_id", "reason"],
+    });
+  });
 });

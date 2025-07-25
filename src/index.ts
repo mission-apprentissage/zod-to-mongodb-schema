@@ -212,6 +212,7 @@ export const jsonSchemaToMongoSchema = (
   }
 
   if (schema.description != null) result.description = schema.description;
+  if (schema.const != null) result.enum = [schema.const];
   if (schema.enum != null) result.enum = schema.enum;
   if (schema.exclusiveMaximum != null) {
     result.exclusiveMaximum = true;
