@@ -311,7 +311,10 @@ export function zodToMongoSchema(
         return;
       }
 
-      if (ctx.zodSchema._zod.def.type === "date") {
+      // In Zod v4, date types are automatically converted to string with date-time format
+      // by the toJSONSchema function, so no additional processing is needed here
+      // https://zod.dev/api?id=iso-dates
+      if (ctx.zodSchema._zod?.def?.type === "date") {
         ctx.jsonSchema.type = "string";
         ctx.jsonSchema.format = "date-time";
       }
