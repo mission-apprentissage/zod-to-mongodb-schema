@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod/v4";
+import type { JSONSchema } from "zod/v4/core";
 import { zodToMongoSchema, zObjectId, zObjectIdMini } from "./index.ts";
 
 describe("zodToMongoSchema", () => {
@@ -146,6 +147,40 @@ describe("zodToMongoSchema", () => {
         },
       },
       required: ["_id", "_mini"],
+    });
+  });
+  it("should support both zObjectId", () => {
+    const zCustomDate = z.custom((v) => v instanceof Date);
+    expect(
+      zodToMongoSchema(
+        z
+          .object({
+            _id: zObjectId,
+            custom: zCustomDate,
+          })
+          .strict(),
+        (zInput): JSONSchema.BaseSchema | null => {
+          if (zInput === zCustomDate) {
+            return {
+              ["bsonType"]: "date",
+            };
+          }
+
+          return null;
+        },
+      ),
+    ).toEqual({
+      additionalProperties: false,
+      bsonType: "object",
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        custom: {
+          bsonType: "date",
+        },
+      },
+      required: ["_id", "custom"],
     });
   });
 });
