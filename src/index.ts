@@ -290,7 +290,7 @@ const jsonSchemaToMongoSchema = (
   return simplifyAnyOf(result);
 };
 
-type IOverrideFn = (zodSchema: $ZodType) => JSONSchema.Schema | null;
+type IOverrideFn = (zodSchema: $ZodType) => JSONSchema.BaseSchema | null;
 
 export function zodToMongoSchema(
   input: $ZodType,
