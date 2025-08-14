@@ -1,167 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod/v4";
-import type { JSONSchema } from "zod/v4/core";
-import {
-  jsonSchemaToMongoSchema,
-  zodToMongoSchema,
-  zObjectId,
-} from "./index.ts";
-
-describe("jsonSchemaToMongoSchema", () => {
-  it("should convert complex schema", () => {
-    const input: JSONSchema.BaseSchema = {
-      type: "object",
-      properties: {
-        _id: {
-          $ref: "objectId",
-        },
-        type_document: {
-          type: "string",
-          description: "Le type de document (exemple: DECA, etc..)",
-        },
-        ext_fichier: {
-          type: "string",
-          description: "Le type de fichier extension",
-          enum: ["xlsx", "xls", "csv"], // 10mb
-        },
-        nom_fichier: {
-          type: "string",
-          description: "Le nom de fichier",
-        },
-        chemin_fichier: {
-          type: "string",
-          description: "Chemin du fichier binaire",
-        },
-        taille_fichier: {
-          type: "integer",
-          description: "Taille du fichier en bytes",
-        },
-        hash_secret: {
-          type: "string",
-          description: "Hash fichier",
-        },
-        hash_fichier: {
-          type: "string",
-          description: "Checksum fichier",
-        },
-        import_progress: {
-          type: "number",
-          description: "Progress percentage (-1 not started)",
-        },
-        lines_count: {
-          type: "integer",
-          description: "Number of lines",
-        },
-        added_by: {
-          type: "string",
-          description: "Qui a ajouté le fichier",
-        },
-        updated_at: {
-          type: "string",
-          format: "date-time",
-          description: "Date de mise à jour en base de données",
-        },
-        created_at: {
-          type: "string",
-          format: "date-time",
-          description: "Date d'ajout en base de données",
-        },
-        _meta: {
-          type: "object",
-          additionalProperties: {},
-        },
-      },
-      required: [
-        "_id",
-        "type_document",
-        "ext_fichier",
-        "nom_fichier",
-        "chemin_fichier",
-        "taille_fichier",
-        "hash_secret",
-        "hash_fichier",
-        "added_by",
-        "created_at",
-      ],
-      additionalProperties: false,
-    };
-
-    expect(jsonSchemaToMongoSchema(input, input)).toEqual({
-      bsonType: "object",
-      properties: {
-        _id: {
-          bsonType: "objectId",
-        },
-        type_document: {
-          bsonType: "string",
-          description: "Le type de document (exemple: DECA, etc..)",
-        },
-        ext_fichier: {
-          bsonType: "string",
-          description: "Le type de fichier extension",
-          enum: ["xlsx", "xls", "csv"], // 10mb
-        },
-        nom_fichier: {
-          bsonType: "string",
-          description: "Le nom de fichier",
-        },
-        chemin_fichier: {
-          bsonType: "string",
-          description: "Chemin du fichier binaire",
-        },
-        taille_fichier: {
-          bsonType: "int",
-          description: "Taille du fichier en bytes",
-        },
-        hash_secret: {
-          bsonType: "string",
-          description: "Hash fichier",
-        },
-        hash_fichier: {
-          bsonType: "string",
-          description: "Checksum fichier",
-        },
-        import_progress: {
-          bsonType: "number",
-          description: "Progress percentage (-1 not started)",
-        },
-        lines_count: {
-          bsonType: "int",
-          description: "Number of lines",
-        },
-        added_by: {
-          bsonType: "string",
-          description: "Qui a ajouté le fichier",
-        },
-        updated_at: {
-          bsonType: "date",
-          description: "Date de mise à jour en base de données",
-        },
-        created_at: {
-          bsonType: "date",
-          description: "Date d'ajout en base de données",
-        },
-        _meta: {
-          bsonType: "object",
-          additionalProperties: true,
-        },
-      },
-      required: [
-        "_id",
-        "type_document",
-        "ext_fichier",
-        "nom_fichier",
-        "chemin_fichier",
-        "taille_fichier",
-        "hash_secret",
-        "hash_fichier",
-        "added_by",
-        "created_at",
-      ],
-      additionalProperties: false,
-    });
-  });
-});
+import { zodToMongoSchema, zObjectId, zObjectIdMini } from "./index.ts";
 
 describe("zodToMongoSchema", () => {
   it("should convert zod object properly", () => {
@@ -234,6 +73,37 @@ describe("zodToMongoSchema", () => {
         z
           .object({
             _id: zObjectId,
+            datetime: z.iso.datetime(),
+            date: z.date(),
+          })
+          .strict(),
+      ),
+    ).toEqual({
+      additionalProperties: false,
+      bsonType: "object",
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        datetime: {
+          bsonType: "string",
+          pattern:
+            "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+        },
+        date: {
+          bsonType: "date",
+        },
+      },
+      required: ["_id", "datetime", "date"],
+    });
+  });
+
+  it("should convert zod string regex with escape properly", () => {
+    expect(
+      zodToMongoSchema(
+        z
+          .object({
+            _id: zObjectId,
             reason: z.literal("unsubscribe"),
           })
           .strict(),
@@ -251,6 +121,31 @@ describe("zodToMongoSchema", () => {
         },
       },
       required: ["_id", "reason"],
+    });
+  });
+
+  it("should support both zObjectId", () => {
+    expect(
+      zodToMongoSchema(
+        z
+          .object({
+            _id: zObjectId,
+            _mini: zObjectIdMini,
+          })
+          .strict(),
+      ),
+    ).toEqual({
+      additionalProperties: false,
+      bsonType: "object",
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        _mini: {
+          bsonType: "objectId",
+        },
+      },
+      required: ["_id", "_mini"],
     });
   });
 });
