@@ -1,6 +1,8 @@
 import { ObjectId } from "bson";
+import { toJSONSchema, registry } from "zod/v4/core";
 import type { $ZodType, JSONSchema } from "zod/v4/core";
-import { custom, pipe, transform, toJSONSchema, registry } from "zod/v4-mini";
+import { z as zMini } from "zod/v4-mini";
+import { z } from "zod/v4";
 
 type MongoType = "object" | "array" | "number" | "boolean" | "string" | "null";
 type MongoBsonType =
@@ -120,21 +122,23 @@ function convertTypeToBsonType(
   }
 }
 
-export const zObjectId = pipe(
-  custom<ObjectId | string>((v) => {
+export const zObjectIdMini = zMini.pipe(
+  zMini.custom<ObjectId | string>((v) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ObjectId.isValid(v as any);
   }),
-  transform((v) => new ObjectId(v)),
+  zMini.transform((v) => new ObjectId(v)),
+);
+
+export const zObjectId = z.pipe(
+  z.custom<ObjectId | string>((v) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return ObjectId.isValid(v as any);
+  }),
+  z.transform((v) => new ObjectId(v)),
 );
 
 function resolveRef(root: JSONSchema.Schema, ref: string) {
-  const result: MongoSchema = {};
-
-  if (ref === "objectId") {
-    result.bsonType = "objectId";
-    return result;
-  }
   const parts: string[] = ref.split("/").slice(1);
   const schema = parts.reduce((acc, part) => {
     if (!(part in acc)) {
@@ -170,10 +174,7 @@ function simplifyAnyOf(schema: MongoSchema): MongoSchema {
   return schema;
 }
 
-/**
- * Conversion du schema pour le format mongoDB
- */
-export const jsonSchemaToMongoSchema = (
+const jsonSchemaToMongoSchema = (
   root: JSONSchema.Schema,
   schema: JSONSchema.Schema,
 ): MongoSchema => {
@@ -215,12 +216,20 @@ export const jsonSchemaToMongoSchema = (
   if (schema.const != null) result.enum = [schema.const];
   if (schema.enum != null) result.enum = schema.enum;
   if (schema.exclusiveMaximum != null) {
-    result.exclusiveMaximum = true;
-    result.maximum = schema.exclusiveMaximum;
+    if (typeof schema.exclusiveMaximum === "boolean") {
+      result.exclusiveMaximum = schema.exclusiveMaximum;
+    } else {
+      result.exclusiveMaximum = true;
+      result.maximum = schema.exclusiveMaximum;
+    }
   }
   if (schema.exclusiveMinimum != null) {
-    result.exclusiveMinimum = true;
-    result.minimum = schema.exclusiveMinimum;
+    if (typeof schema.exclusiveMinimum === "boolean") {
+      result.exclusiveMinimum = schema.exclusiveMinimum;
+    } else {
+      result.exclusiveMinimum = true;
+      result.minimum = schema.exclusiveMinimum;
+    }
   }
   if (schema.items != null) {
     result.items = Array.isArray(schema.items)
@@ -270,9 +279,8 @@ export const jsonSchemaToMongoSchema = (
   }
   if (schema.uniqueItems != null) result.uniqueItems = schema.uniqueItems;
 
-  if (schema.format === "date-time") {
-    delete result.type;
-    result.bsonType = "date";
+  if ("bsonType" in schema) {
+    result.bsonType = schema["bsonType"] as MongoBsonType | MongoBsonType[];
   }
 
   if (schema.$ref) {
@@ -289,10 +297,6 @@ export function zodToMongoSchema(
   overrideFn: IOverrideFn | null = null,
 ): MongoSchema {
   const metadata = registry<{ id: string; description?: string }>();
-  metadata.add(zObjectId, {
-    id: "objectId",
-    description: "Identifiant unique",
-  });
   metadata.add(input, { id: "root" });
 
   const { schemas: jsonSchemas } = toJSONSchema(metadata, {
@@ -300,6 +304,13 @@ export function zodToMongoSchema(
     unrepresentable: "any",
     io: "output",
     override: (ctx) => {
+      if (ctx.zodSchema === zObjectId || ctx.zodSchema === zObjectIdMini) {
+        delete ctx.jsonSchema.type;
+        delete ctx.jsonSchema.format;
+        ctx.jsonSchema["bsonType"] = "objectId";
+        return;
+      }
+
       const custom = overrideFn?.(ctx.zodSchema) ?? null;
 
       if (custom) {
@@ -311,12 +322,10 @@ export function zodToMongoSchema(
         return;
       }
 
-      // In Zod v4, date types are automatically converted to string with date-time format
-      // by the toJSONSchema function, so no additional processing is needed here
-      // https://zod.dev/api?id=iso-dates
-      if (ctx.zodSchema._zod?.def?.type === "date") {
-        ctx.jsonSchema.type = "string";
-        ctx.jsonSchema.format = "date-time";
+      if (ctx.zodSchema._zod.def.type === "date") {
+        delete ctx.jsonSchema.type;
+        delete ctx.jsonSchema.format;
+        ctx.jsonSchema["bsonType"] = "date";
       }
     },
   });
