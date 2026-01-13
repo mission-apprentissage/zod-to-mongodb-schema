@@ -13,7 +13,7 @@
   "author": "Moroine <moroine.bentefrit@beta.gouv.fr>",
   "license": "MIT",
   "engines": {
-    "node": ">=24",
+    "node": ">=24.10",
     "npm": ">=11.0.0",
     "yarn": "please-use-npm"
   },
@@ -47,7 +47,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
-    "semantic-release": "^24.2.9",
+    "semantic-release": "^25.0.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
