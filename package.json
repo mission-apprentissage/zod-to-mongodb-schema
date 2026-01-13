@@ -29,7 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "bson": "^6.0.0",
+    "bson": "^7.0.0",
     "zod": "^3.25.64 || ^4.0.0"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "@eslint/compat": "^2.0.1",
     "@eslint/js": "^9.39.2",
     "@semantic-release/changelog": "^6.0.3",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import-x": "^4.16.1",
